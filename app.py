@@ -34,7 +34,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGIKA DSP
+# 2. LOGIKA DSP (Sinyal Processing)
 # ==========================================
 def bandpass_filter(data, fs, lowcut, highcut, order):
     nyq = 0.5 * fs
@@ -89,7 +89,7 @@ with st.sidebar:
     FILTER_ORDER = st.slider("Filter Order", 1, 10, 4)
 
 # ==========================================
-# 4. HALAMAN UTAMA (KOMPARASI FILE)
+# 4. HALAMAN UTAMA
 # ==========================================
 st.markdown('<div class="main-title">Komparasi Kualitas Audio (File)</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Dashboard Komparasi Kualitas Audio Digital (Pro 1 vs Pro 2 vs Pro 4) - Laporan PKL</div>', unsafe_allow_html=True)
