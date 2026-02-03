@@ -3,16 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
 import librosa
-import io
-
-# --- IMPORT LIBRARY REKAMAN ---
-# Di Cloud, library ini sudah diinstall lewat requirements.txt
-# Jadi kita langsung import saja, jangan pakai try-except install
-try:
-    from streamlit_audiorecorder import audiorecorder
-except ImportError:
-    st.error("Library 'streamlit-audiorecorder' belum terinstall di Server.")
-    st.stop()
 
 # ==========================================
 # 1. KONFIGURASI HALAMAN
@@ -24,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CSS ---
+# --- CSS STYLING ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
@@ -44,7 +34,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. FUNGSI LOGIKA DSP
+# 2. LOGIKA DSP
 # ==========================================
 def bandpass_filter(data, fs, lowcut, highcut, order):
     nyq = 0.5 * fs
@@ -90,7 +80,7 @@ with st.sidebar:
     except: pass
     
     st.title("Menu Sistem")
-    menu = st.radio("Pilih Mode:", ["📂 Komparasi File", "🎙️ Analisis Realtime"])
+    st.info("📂 Mode: Komparasi File")
     
     st.markdown("---")
     st.header("🎛️ Filter DSP")
@@ -99,112 +89,67 @@ with st.sidebar:
     FILTER_ORDER = st.slider("Filter Order", 1, 10, 4)
 
 # ==========================================
-# 4. HALAMAN KOMPARASI
+# 4. HALAMAN UTAMA (KOMPARASI FILE)
 # ==========================================
-def show_comparison_page():
-    st.markdown('<div class="main-title">Komparasi Kualitas Audio (File)</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Upload file Pro 1, Pro 2, dan Pro 4 untuk dibandingkan.</div>', unsafe_allow_html=True)
-    
-    results = {}
-    col1, col2, col3 = st.columns(3)
-    COLOR_MAP = {"RRI Pro 1": "#DC2626", "RRI Pro 2": "#D97706", "RRI Pro 4": "#059669"}
+st.markdown('<div class="main-title">Komparasi Kualitas Audio (File)</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Dashboard Komparasi Kualitas Audio Digital (Pro 1 vs Pro 2 vs Pro 4) - Laporan PKL</div>', unsafe_allow_html=True)
 
-    def render_upload(col, title, key, logo):
+results = {}
+col1, col2, col3 = st.columns(3)
+COLOR_MAP = {"RRI Pro 1": "#DC2626", "RRI Pro 2": "#D97706", "RRI Pro 4": "#059669"}
+
+def render_upload(col, title, key, logo):
+    with col:
+        with st.container(border=True):
+            st.markdown(f"#### {title}")
+            uploaded = st.file_uploader(f"Up {title}", type=['mp3', 'wav'], key=key, label_visibility="collapsed")
+            if uploaded:
+                y, sr = librosa.load(uploaded, sr=None, mono=True)
+                data = process_audio_data(y, sr, LOW_CUT, HIGH_CUT, FILTER_ORDER)
+                st.metric("SNR Quality", f"{data['snr']:.2f} dB")
+                st.audio(uploaded)
+                return {title: data}
+    return None
+
+r1 = render_upload(col1, "RRI Pro 1", "u1", "pro 1.png")
+r2 = render_upload(col2, "RRI Pro 2", "u2", "pro 2.png")
+r3 = render_upload(col3, "RRI Pro 4", "u4", "pro 4.png")
+
+if r1: results.update(r1)
+if r2: results.update(r2)
+if r3: results.update(r3)
+
+if results:
+    st.divider()
+    best_ch = max(results, key=lambda x: results[x]['snr'])
+    st.markdown(f"""
+    <div class="winner-box">
+        <div class="winner-text-head">🏆 REKOMENDASI: {best_ch}</div>
+        <div>SNR Tertinggi: <b>{results[best_ch]['snr']:.2f} dB</b></div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    gc1, gc2, gc3 = st.columns(3)
+    def plot_graph(col, title, data):
         with col:
             with st.container(border=True):
-                st.markdown(f"#### {title}")
-                uploaded = st.file_uploader(f"Up {title}", type=['mp3', 'wav'], key=key, label_visibility="collapsed")
-                if uploaded:
-                    y, sr = librosa.load(uploaded, sr=None, mono=True)
-                    data = process_audio_data(y, sr, LOW_CUT, HIGH_CUT, FILTER_ORDER)
-                    st.metric("SNR Quality", f"{data['snr']:.2f} dB")
-                    st.audio(uploaded)
-                    return {title: data}
-        return None
+                st.markdown(f"**{title}**")
+                plt.style.use('default')
+                DS_WAVE, DS_FFT = 100, 10
+                
+                fig1, ax1 = plt.subplots(figsize=(5, 2))
+                ax1.plot(data['time'][::DS_WAVE], data['audio'][::DS_WAVE], color='#1E3A8A', alpha=0.5)
+                ax1.plot(data['time'][::DS_WAVE], data['noise'][::DS_WAVE], color='red', alpha=0.6)
+                ax1.set_xticks([]); ax1.set_ylabel("Amp")
+                fig1.patch.set_alpha(0); st.pyplot(fig1)
+                
+                fig2, ax2 = plt.subplots(figsize=(5, 2))
+                c = COLOR_MAP.get(title, "blue")
+                ax2.plot(data['freqs'][::DS_FFT], data['fft'][::DS_FFT], color=c)
+                ax2.fill_between(data['freqs'][::DS_FFT], data['fft'][::DS_FFT], color=c, alpha=0.3)
+                ax2.set_xlim(0, 5000); ax2.set_xlabel("Hz")
+                fig2.patch.set_alpha(0); st.pyplot(fig2)
 
-    r1 = render_upload(col1, "RRI Pro 1", "u1", "pro 1.png")
-    r2 = render_upload(col2, "RRI Pro 2", "u2", "pro 2.png")
-    r3 = render_upload(col3, "RRI Pro 4", "u4", "pro 4.png")
-    
-    if r1: results.update(r1)
-    if r2: results.update(r2)
-    if r3: results.update(r3)
-
-    if results:
-        st.divider()
-        best_ch = max(results, key=lambda x: results[x]['snr'])
-        st.markdown(f"""
-        <div class="winner-box">
-            <div class="winner-text-head">🏆 REKOMENDASI: {best_ch}</div>
-            <div>SNR Tertinggi: <b>{results[best_ch]['snr']:.2f} dB</b></div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        gc1, gc2, gc3 = st.columns(3)
-        def plot_graph(col, title, data):
-            with col:
-                with st.container(border=True):
-                    st.markdown(f"**{title}**")
-                    plt.style.use('default')
-                    DS_WAVE, DS_FFT = 100, 10
-                    
-                    fig1, ax1 = plt.subplots(figsize=(5, 2))
-                    ax1.plot(data['time'][::DS_WAVE], data['audio'][::DS_WAVE], color='#1E3A8A', alpha=0.5)
-                    ax1.plot(data['time'][::DS_WAVE], data['noise'][::DS_WAVE], color='red', alpha=0.6)
-                    ax1.set_xticks([]); ax1.set_ylabel("Amp")
-                    fig1.patch.set_alpha(0); st.pyplot(fig1)
-                    
-                    fig2, ax2 = plt.subplots(figsize=(5, 2))
-                    c = COLOR_MAP.get(title, "blue")
-                    ax2.plot(data['freqs'][::DS_FFT], data['fft'][::DS_FFT], color=c)
-                    ax2.fill_between(data['freqs'][::DS_FFT], data['fft'][::DS_FFT], color=c, alpha=0.3)
-                    ax2.set_xlim(0, 5000); ax2.set_xlabel("Hz")
-                    fig2.patch.set_alpha(0); st.pyplot(fig2)
-
-        if "RRI Pro 1" in results: plot_graph(gc1, "RRI Pro 1", results["RRI Pro 1"])
-        if "RRI Pro 2" in results: plot_graph(gc2, "RRI Pro 2", results["RRI Pro 2"])
-        if "RRI Pro 4" in results: plot_graph(gc3, "RRI Pro 4", results["RRI Pro 4"])
-
-# ==========================================
-# 5. HALAMAN REALTIME
-# ==========================================
-def show_realtime_page():
-    st.markdown('<div class="main-title">🎙️ Analisis Realtime</div>', unsafe_allow_html=True)
-    col_rec, col_res = st.columns([1, 2])
-    with col_rec:
-        with st.container(border=True):
-            st.markdown("### 🔴 Panel Perekam")
-            audio = audiorecorder("Mulai Rekam", "Stop Rekam")
-            data = None
-            if len(audio) > 0:
-                try:
-                    audio_file = io.BytesIO(audio.export().read())
-                    y, sr = librosa.load(audio_file, sr=None, mono=True)
-                    st.success("Audio terekam!")
-                    st.audio(audio.export().read())
-                    data = process_audio_data(y, sr, LOW_CUT, HIGH_CUT, FILTER_ORDER)
-                except Exception as e: st.error(f"Error: {e}")
-    with col_res:
-        if data:
-            m1, m2 = st.columns(2)
-            with m1: st.metric("SNR", f"{data['snr']:.2f} dB")
-            with m2: st.metric("Noise Floor", f"{data['floor']:.2f} dB")
-            st.divider()
-            plt.style.use('default')
-            fig_wave, ax_wave = plt.subplots(figsize=(10, 3))
-            ax_wave.plot(data['time'][::50], data['audio'][::50], color="#2563EB", alpha=0.6)
-            ax_wave.plot(data['time'][::50], data['noise'][::50], color="#DC2626", alpha=0.6)
-            st.pyplot(fig_wave)
-            fig_fft, ax_fft = plt.subplots(figsize=(10, 3))
-            ax_fft.plot(data['freqs'][::10], data['fft'][::10], color="#059669")
-            ax_fft.fill_between(data['freqs'][::10], data['fft'][::10], color="#059669", alpha=0.3)
-            ax_fft.set_xlim(0, 5000); st.pyplot(fig_fft)
-        else: st.info("Silakan rekam suara dulu.")
-
-# ==========================================
-# 6. ROUTING
-# ==========================================
-if menu == "📂 Komparasi File":
-    show_comparison_page()
-elif menu == "🎙️ Analisis Realtime":
-    show_realtime_page()
+    if "RRI Pro 1" in results: plot_graph(gc1, "RRI Pro 1", results["RRI Pro 1"])
+    if "RRI Pro 2" in results: plot_graph(gc2, "RRI Pro 2", results["RRI Pro 2"])
+    if "RRI Pro 4" in results: plot_graph(gc3, "RRI Pro 4", results["RRI Pro 4"])
