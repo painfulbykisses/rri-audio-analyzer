@@ -59,7 +59,7 @@ with col_logo:
     except: st.error("Logo 404")
 with col_text:
     st.markdown('<div class="main-title">RRI Signal Quality Analyzer</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Dashboard Komparasi Kualitas Audio Digital (Pro 1 vs Pro 2 vs Pro 4) - Laporan PKL</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Dashboard Komparasi Kualitas Audio Digital (Pro 1 vs Pro 2 vs Pro 4) - PKL Muhammad Dzikri H.C.H</div>', unsafe_allow_html=True)
 
 st.divider()
 
@@ -249,3 +249,4 @@ if len(results) > 0:
 else:
     st.markdown("<br>", unsafe_allow_html=True)
     st.info("👈 Silakan upload file audio untuk melihat visualisasi grafik.")
+
