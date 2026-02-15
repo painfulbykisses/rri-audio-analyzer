@@ -139,8 +139,9 @@ def serve_assets(filename):
 # RUN
 # ==========================================
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
     print("\n📻 RRI Audio Signal Quality Analyzer")
     print("=" * 40)
-    print("🌐 Open in browser: http://localhost:5000")
+    print(f"🌐 Open in browser: http://localhost:{port}")
     print("=" * 40 + "\n")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=port)
