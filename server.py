@@ -10,7 +10,10 @@ import librosa
 # ==========================================
 # FLASK APP SETUP
 # ==========================================
-app = Flask(__name__, static_folder='static', template_folder='templates')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__,
+            static_folder=os.path.join(BASE_DIR, 'static'),
+            template_folder=os.path.join(BASE_DIR, 'templates'))
 CORS(app)
 
 # ==========================================
@@ -132,7 +135,7 @@ def analyze():
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):
     """Serve logo and image assets from root directory."""
-    return send_from_directory('.', filename)
+    return send_from_directory(BASE_DIR, filename)
 
 
 # ==========================================
