@@ -105,13 +105,9 @@ def process_audio(file_bytes, filename, low_cut=300, high_cut=3400, filter_order
 @app.route('/')
 def index():
     """Serve the main dashboard page."""
-    html_path = os.path.join(BASE_DIR, 'templates', 'index.html')
+    html_path = os.path.join(BASE_DIR, 'index.html')
     if not os.path.exists(html_path):
-        # Debug: list files to see what's available
-        files = []
-        for root, dirs, fnames in os.walk(BASE_DIR):
-            for f in fnames:
-                files.append(os.path.relpath(os.path.join(root, f), BASE_DIR))
+        files = os.listdir(BASE_DIR)
         return jsonify({"error": "index.html not found", "base_dir": BASE_DIR, "files": files}), 500
     return send_file(html_path)
 
@@ -155,9 +151,7 @@ if __name__ == '__main__':
     print("=" * 40)
     print(f"🌐 Open in browser: http://localhost:{port}")
     print(f"📁 BASE_DIR: {BASE_DIR}")
-    print(f"📁 Templates: {os.path.join(BASE_DIR, 'templates')}")
-    print(f"📁 Templates exists: {os.path.exists(os.path.join(BASE_DIR, 'templates'))}")
-    if os.path.exists(os.path.join(BASE_DIR, 'templates')):
-        print(f"📁 Templates contents: {os.listdir(os.path.join(BASE_DIR, 'templates'))}")
+    print(f"📁 index.html exists: {os.path.exists(os.path.join(BASE_DIR, 'index.html'))}")
+    print(f"📁 Files: {os.listdir(BASE_DIR)}")
     print("=" * 40 + "\n")
     app.run(debug=False, host='0.0.0.0', port=port)
