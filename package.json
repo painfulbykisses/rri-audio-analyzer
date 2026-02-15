@@ -1,0 +1,12 @@
+{
+  "name": "rri-audio-analyzer",
+  "version": "1.0.0",
+  "description": "RRI Audio Signal Quality Analyzer - A modern web-based tool for analyzing audio signal quality",
+  "scripts": {
+    "start": "python server.py",
+    "install": "pip install -r requirements.txt"
+  },
+  "engines": {
+    "python": ">=3.9"
+  }
+}
