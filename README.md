@@ -12,7 +12,13 @@ app_port: 7860
 > **Digital Audio Signal Quality Analysis Dashboard**
 > Internship Project — LPP RRI Malang 2026
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Hugging_Face_Spaces-blue?style=for-the-badge)](https://huggingface.co/spaces/dezikrie/rri-analyzer-audio)
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-Backend-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
+
 This application analyzes audio quality from **RRI (Radio Republik Indonesia)** broadcasts across channels **Pro 1**, **Pro 2**, and **Pro 4**. Built with a **Flask + HTML/CSS/JS** architecture — Python handles the DSP (Digital Signal Processing) logic while the frontend delivers a modern, dark-themed dashboard experience.
+
+🔗 **Live Demo:** [https://huggingface.co/spaces/dezikrie/rri-analyzer-audio](https://huggingface.co/spaces/dezikrie/rri-analyzer-audio)
 
 ---
 
@@ -58,13 +64,13 @@ Converts audio from Time Domain (Amplitude vs Time) to Frequency Domain (Magnitu
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Python 3.8+** — [Download here](https://www.python.org/downloads/)
+- **Python 3.9+** — [Download here](https://www.python.org/downloads/)
 
 ### Installation
 
 ```bash
 # Navigate to your Desktop (or any folder you prefer)
-cd %USERPROFILE%\Desktop
+cd ~/Desktop
 
 # Clone the repository
 git clone https://github.com/painfulbykisses/rri-audio-analyzer.git
@@ -74,7 +80,7 @@ cd rri-audio-analyzer
 pip install -r requirements.txt
 ```
 
-### Run the Application
+### Run Locally
 
 ```bash
 python server.py
@@ -84,15 +90,29 @@ Open your browser and navigate to **[http://localhost:5000](http://localhost:500
 
 ---
 
-## 📂 Project Structure
+## � Docker Deployment
+
+This project includes a Dockerfile for containerized deployment (used by Hugging Face Spaces):
+
+```bash
+docker build -t rri-audio-analyzer .
+docker run -p 7860:7860 rri-audio-analyzer
+```
+
+---
+
+## �📂 Project Structure
 
 ```
 rri-audio-analyzer/
 ├── server.py              # Flask backend + DSP logic (API)
-├── templates/
-│   └── index.html         # Frontend dashboard (HTML/CSS/JS)
+├── index.html             # Frontend dashboard (HTML/CSS/JS)
+├── Dockerfile             # Docker config for HF Spaces deployment
 ├── requirements.txt       # Python dependencies
+├── package.json           # Project metadata
+├── .gitattributes         # Git LFS configuration
 ├── logo_rri.png           # RRI logo
+├── favicon.png            # Browser tab favicon
 ├── pro 1.png              # Channel Pro 1 icon
 ├── pro 2.png              # Channel Pro 2 icon
 ├── pro 4.png              # Channel Pro 4 icon
@@ -108,10 +128,17 @@ rri-audio-analyzer/
 | `numpy` | Numerical computations |
 | `scipy` | Signal processing (Butterworth filter) |
 | `librosa` | Audio file loading & processing |
+| `gunicorn` | Production WSGI server |
 | **Chart.js** (CDN) | Frontend chart rendering |
+
+## 🌐 Deployment
+
+This app is deployed on **Hugging Face Spaces** using Docker SDK:
+
+🔗 **[https://huggingface.co/spaces/dezikrie/rri-analyzer-audio](https://huggingface.co/spaces/dezikrie/rri-analyzer-audio)**
 
 ## 📝 Author
 
 **Muhammad Dzikri H.C.H**
-Intern Student — RRI Malang 2026
+Intern Student — LPP RRI Malang 2026
 Computational Physics Student
