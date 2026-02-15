@@ -54,6 +54,9 @@ Converts audio from Time Domain (Amplitude vs Time) to Frequency Domain (Magnitu
 ### Installation
 
 ```bash
+# Navigate to your Desktop (or any folder you prefer)
+cd %USERPROFILE%\Desktop
+
 # Clone the repository
 git clone https://github.com/painfulbykisses/rri-audio-analyzer.git
 cd rri-audio-analyzer
