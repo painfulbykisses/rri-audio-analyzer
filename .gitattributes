@@ -1,0 +1,7 @@
+# Disable Git LFS for code and template files
+*.html !filter !diff !merge text
+*.py !filter !diff !merge text
+*.txt !filter !diff !merge text
+*.md !filter !diff !merge text
+*.css !filter !diff !merge text
+*.js !filter !diff !merge text
