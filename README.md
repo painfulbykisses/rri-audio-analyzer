@@ -1,3 +1,12 @@
+---
+title: RRI Audio Analyzer
+emoji: 📻
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
+
 # 📻 RRI Audio Signal Quality Analyzer
 
 > **Digital Audio Signal Quality Analysis Dashboard**
